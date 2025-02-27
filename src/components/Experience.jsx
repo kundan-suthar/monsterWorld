@@ -7,6 +7,7 @@ import {
   Text,
   useCursor,
   useTexture,
+  useProgress,
 } from "@react-three/drei";
 import * as THREE from "three";
 import { easing } from "maath";
@@ -19,10 +20,13 @@ import { useFrame, useThree } from "@react-three/fiber";
 export const Experience = () => {
   const [active, setActive] = useState(null);
   const [hovered, setHovered] = useState(null);
+  const [isRevealed, setIsRevealed] = useState(false); // New state for reveal
   useCursor(hovered)
   const controlRef = useRef();
   const scene = useThree((state) => state.scene)
+  const { active: loading, loaded, total } = useProgress(); // Track loading progress
   useEffect(() => {
+    if (!controlRef.current) return;
     if (active) {
       const targetPosition = new THREE.Vector3();
       scene.getObjectByName(active).getWorldPosition(targetPosition);
@@ -47,6 +51,62 @@ export const Experience = () => {
       )
     }
   }, [active]);
+  // Handler for the Surprise button click
+  const handleSurpriseClick = () => {
+    setIsRevealed(true);
+  };
+  // If not revealed, show black screen with button
+  if (!isRevealed) {
+    return (
+      <>
+        <color attach="background" args={["#000000"]} /> {/* Black background */}
+        <Text
+          fontSize={0.5}
+          position={[0, 0, 0]}
+          color="white"
+          anchorX="center"
+          anchorY="middle"
+        >
+          Surprise!!!
+          <meshBasicMaterial toneMapped={false} />
+        </Text>
+        <mesh
+          position={[0, -0.6, 0]}
+          onClick={handleSurpriseClick}
+        >
+          <planeGeometry args={[2, 0.5]} />
+          <meshBasicMaterial color="#ff5555" />
+          <Text
+            fontSize={0.2}
+            color="white"
+            anchorX="center"
+            anchorY="middle"
+          >
+            Click Me!
+            <meshBasicMaterial toneMapped={false} />
+          </Text>
+        </mesh>
+      </>
+    );
+  }
+  // Loading screen while assets are loading
+  if (loading || loaded < total) {
+    return (
+      <>
+        <color attach="background" args={["#000000"]} />
+        <Text
+          fontSize={0.5}
+          position={[0, 0, 0]}
+          color="white"
+          anchorX="center"
+          anchorY="middle"
+        >
+          Loading...
+          <meshBasicMaterial toneMapped={false} />
+        </Text>
+      </>
+    );
+  }
   return (
     <>
       <ambientLight intensity={0.5} />
@@ -94,6 +154,8 @@ export const Experience = () => {
       </MonsterStage>
     </>
   );
+
+
 };
 
 const MonsterStage = ({
