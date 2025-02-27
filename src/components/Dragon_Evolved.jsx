@@ -8,17 +8,18 @@ import { useGraph } from '@react-three/fiber'
 import { useGLTF, useAnimations } from '@react-three/drei'
 import { SkeletonUtils } from 'three-stdlib'
 
-export function Dragon_Evolved(props) {
+export function Dragon_Evolved({ hovered, ...props }) {
   const group = React.useRef()
   const { scene, animations } = useGLTF('/models/Dragon_Evolved.gltf')
   const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene])
   const { nodes, materials } = useGraph(clone)
   const { actions } = useAnimations(animations, group)
-  //console.log(actions);
+  console.log(actions);
   useEffect(() => {
-    actions["Flying_Idle"].reset().fadeIn(0.5).play();
-    return () => actions["Flying_Idle"].fadeOut(0.5)
-  })
+    let anim = hovered ? "Headbutt" : "Flying_Idle"
+    actions[anim].reset().fadeIn(0.5).play();
+    return () => actions[anim].fadeOut(0.5)
+  }, [hovered])
   return (
     <group ref={group} {...props} dispose={null}>
       <group name="Scene">

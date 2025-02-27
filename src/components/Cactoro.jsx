@@ -8,17 +8,18 @@ import { useGraph } from '@react-three/fiber'
 import { useGLTF, useAnimations } from '@react-three/drei'
 import { SkeletonUtils } from 'three-stdlib'
 
-export function Cactoro(props) {
+export function Cactoro({ hovered, ...props }) {
   const group = React.useRef()
   const { scene, animations } = useGLTF('/models/Cactoro.gltf')
   const clone = React.useMemo(() => SkeletonUtils.clone(scene), [scene])
   const { nodes, materials } = useGraph(clone)
   const { actions } = useAnimations(animations, group)
-  console.log(actions);
+  //console.log(actions);
   useEffect(() => {
-    actions["Idle"].reset().fadeIn(0.5).play();
-    return () => actions["Idle"].fadeOut(0.5)
-  })
+    let anim = hovered ? "Dance" : "Idle"
+    actions[anim].reset().fadeIn(0.5).play();
+    return () => actions[anim].fadeOut(0.5)
+  }, [hovered])
   return (
     <group ref={group} {...props} dispose={null}>
       <group name="Scene">

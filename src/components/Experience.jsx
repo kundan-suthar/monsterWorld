@@ -5,6 +5,7 @@ import {
   OrbitControls,
   RoundedBox,
   Text,
+  useCursor,
   useTexture,
 } from "@react-three/drei";
 import * as THREE from "three";
@@ -17,6 +18,8 @@ import { useFrame, useThree } from "@react-three/fiber";
 
 export const Experience = () => {
   const [active, setActive] = useState(null);
+  const [hovered, setHovered] = useState(null);
+  useCursor(hovered)
   const controlRef = useRef();
   const scene = useThree((state) => state.scene)
   useEffect(() => {
@@ -53,12 +56,14 @@ export const Experience = () => {
         texture={
           "textures/anime_art_style_a_water_based_pokemon_like_environ.jpg"
         }
-        name="Fish"
+        name="Fish King"
         color={"#006b96"}
         active={active}
         setActive={setActive}
+        hovered={hovered}
+        setHovered={setHovered}
       >
-        <Fish scale={0.6} position-y={-1} />
+        <Fish scale={0.6} position-y={-1} hovered={hovered === "Fish King"} />
       </MonsterStage>
       <MonsterStage
         texture={"textures/anime_art_style_cactus_forest.jpg"}
@@ -68,8 +73,11 @@ export const Experience = () => {
         rotation-y={Math.PI / 8}
         active={active}
         setActive={setActive}
+        hovered={hovered}
+        setHovered={setHovered}
+
       >
-        <Cactoro scale={0.45} position-y={-1} />
+        <Cactoro scale={0.45} position-y={-1} hovered={hovered === "Cactoro"} />
       </MonsterStage>
       <MonsterStage
         texture={"textures/anime_art_style_lava_world.jpg"}
@@ -79,8 +87,10 @@ export const Experience = () => {
         rotation-y={-Math.PI / 8}
         active={active}
         setActive={setActive}
+        hovered={hovered}
+        setHovered={setHovered}
       >
-        <Dragon_Evolved scale={0.5} position-y={-1} />
+        <Dragon_Evolved scale={0.5} position-y={-1} hovered={hovered === "Dragon"} />
       </MonsterStage>
     </>
   );
@@ -93,6 +103,8 @@ const MonsterStage = ({
   color,
   active,
   setActive,
+  hovered,
+  setHovered,
   ...props
 }) => {
   const map = useTexture(texture);
@@ -101,6 +113,11 @@ const MonsterStage = ({
     const worldOpen = active === name;
     easing.damp(portalMaterial.current, "blend", worldOpen ? 1 : 0, 0.2, delta);
   });
+  let handleDoubleClick = () => {
+    setActive(active === name ? null : name)
+    console.log(active);
+
+  }
   return (
     <group {...props}>
       <Text
@@ -114,7 +131,13 @@ const MonsterStage = ({
       <RoundedBox
         name={name}
         args={[2, 3, 0.1]}
-        onDoubleClick={() => setActive(active === name ? null : name)}
+        onDoubleClick={handleDoubleClick}
+
+        onPointerEnter={() => {
+          setHovered(name);
+          console.log("Hovered:", name);
+        }}
+        onPointerLeave={() => setHovered(null)}
       >
         <MeshPortalMaterial side={THREE.DoubleSide} ref={portalMaterial}>
           <ambientLight intensity={1} />
